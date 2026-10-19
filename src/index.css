@@ -1,0 +1,94 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/inter";
+
+/* ДС: Primitive → Semantic → Typography (ds/foundation.md) */
+@import "./tokens/primitives.css";
+@import "./tokens/semantics.css";
+@import "./tokens/typography.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: 'Inter Variable', 'Inter', sans-serif;
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+}
+
+/*
+ * Тема shadcn → наши Semantic-токены (ds/foundation.md, Light).
+ * Компоненты shadcn читают эти переменные; значения приходят только из ДС.
+ */
+:root {
+    --background: var(--background-default);
+    --foreground: var(--foreground-default);
+    --card: var(--background-card);
+    --card-foreground: var(--foreground-default);
+    --popover: var(--background-popover);
+    --popover-foreground: var(--foreground-default);
+    --primary: var(--background-primary-default);
+    --primary-foreground: var(--foreground-primary-default);
+    --secondary: var(--background-secondary-default);
+    --secondary-foreground: var(--foreground-accent);
+    --muted: var(--background-muted);
+    --muted-foreground: var(--foreground-muted);
+    --accent: var(--background-accent);
+    --accent-foreground: var(--foreground-accent);
+    --destructive: var(--background-destructive-default);
+    --border: var(--border-default);
+    --input: var(--background-input);
+    --ring: var(--border-primary-default);
+    --radius: var(--radius-md);
+    /* --chart-1…5 — примитивы, заданы в primitives.css */
+    --sidebar: var(--background-secondary-default);
+    --sidebar-foreground: var(--foreground-default);
+    --sidebar-primary: var(--background-primary-default);
+    --sidebar-primary-foreground: var(--foreground-primary-default);
+    --sidebar-accent: var(--background-accent);
+    --sidebar-accent-foreground: var(--foreground-accent);
+    --sidebar-border: var(--border-default);
+    --sidebar-ring: var(--border-primary-default);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+  html {
+    @apply font-sans;
+    }
+}

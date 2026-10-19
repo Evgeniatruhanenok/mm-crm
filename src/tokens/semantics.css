@@ -1,0 +1,104 @@
+/*
+ * Слой 2 — Semantic (ds/foundation.md → коллекция Tokens, режим Light)
+ * Каждая семантика ссылается на примитив через var(), как VARIABLE_ALIAS в Figma.
+ * Имя = якорь: `Foreground/Secondary/default` → `--foreground-secondary-default`.
+ */
+
+:root {
+  /* ── Foreground (TEXT_FILL) ──────────────────────────────── */
+  --foreground-default: var(--zinc-950);
+  --foreground-accent: var(--zinc-900);
+  --foreground-secondary-default: var(--zinc-700);
+  --foreground-muted: var(--zinc-500);
+  --foreground-disabled-default: var(--zinc-400);
+  --foreground-primary-default: var(--primary-50);
+  --foreground-destructive-default: var(--red-500);
+  --foreground-success-default: var(--emerald-700);
+  --foreground-warning-default: var(--yellow-700);
+
+  /* ── Background (FRAME_FILL) ─────────────────────────────── */
+  --background-default: var(--white);
+  --background-card: var(--white);
+  --background-popover: var(--white);
+  --background-secondary-default: var(--zinc-100);
+  --background-muted: var(--zinc-100);
+  --background-accent: var(--zinc-100);
+  --background-input: var(--zinc-200);
+  --background-primary-default: var(--primary-900);
+  --background-primary-light: var(--primary-50);
+  --background-destructive-default: var(--red-600);
+  --background-success-default: var(--emerald-600);
+  --background-warning-default: var(--yellow-500);
+  --background-disabled-default: var(--neutral-400);
+  /* light = primitive at 10% alpha (Figma: Background/Success|Warning|Destructive/light) */
+  --background-success-light: color-mix(in srgb, var(--emerald-600) 10%, transparent);
+  --background-warning-light: color-mix(in srgb, var(--yellow-500) 10%, transparent);
+  --background-destructive-light: color-mix(in srgb, var(--red-600) 10%, transparent);
+
+  /* ── Border (STROKE_COLOR) ───────────────────────────────── */
+  --border-default: var(--zinc-200);
+  --border-primary-default: var(--zinc-400);
+  --border-destructive-default: var(--red-500);
+  --border-success-default: var(--emerald-700);
+  --border-warning-default: var(--yellow-600);
+
+  /* ── Icon (SHAPE_FILL) ───────────────────────────────────── */
+  --icon-default: var(--zinc-950);
+  --icon-accent: var(--zinc-900);
+  --icon-secondary-default: var(--zinc-700);
+  --icon-muted: var(--zinc-500);
+  --icon-disabled-default: var(--zinc-400);
+  --icon-primary-default: var(--primary-50);
+  --icon-destructive-default: var(--red-500);
+  --icon-success-default: var(--emerald-700);
+  --icon-warning-default: var(--yellow-700);
+}
+
+/* Семантика как Tailwind-цвета: `text-foreground-muted`, `bg-background-card`, … */
+@theme inline {
+  --color-foreground-default: var(--foreground-default);
+  --color-foreground-accent: var(--foreground-accent);
+  --color-foreground-secondary-default: var(--foreground-secondary-default);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-disabled-default: var(--foreground-disabled-default);
+  --color-foreground-primary-default: var(--foreground-primary-default);
+  --color-foreground-destructive-default: var(--foreground-destructive-default);
+  --color-foreground-success-default: var(--foreground-success-default);
+  --color-foreground-warning-default: var(--foreground-warning-default);
+
+  --color-background-default: var(--background-default);
+  --color-background-card: var(--background-card);
+  --color-background-popover: var(--background-popover);
+  --color-background-secondary-default: var(--background-secondary-default);
+  --color-background-muted: var(--background-muted);
+  --color-background-accent: var(--background-accent);
+  --color-background-input: var(--background-input);
+  --color-background-primary-default: var(--background-primary-default);
+  --color-background-primary-light: var(--background-primary-light);
+  --color-background-destructive-default: var(--background-destructive-default);
+  --color-background-success-default: var(--background-success-default);
+  --color-background-warning-default: var(--background-warning-default);
+  --color-background-disabled-default: var(--background-disabled-default);
+  --color-background-success-light: var(--background-success-light);
+  --color-background-warning-light: var(--background-warning-light);
+  --color-background-destructive-light: var(--background-destructive-light);
+
+  --color-border-default: var(--border-default);
+  --color-border-primary-default: var(--border-primary-default);
+  --color-border-destructive-default: var(--border-destructive-default);
+  --color-border-success-default: var(--border-success-default);
+  --color-border-warning-default: var(--border-warning-default);
+
+  --color-icon-default: var(--icon-default);
+  --color-icon-accent: var(--icon-accent);
+  --color-icon-secondary-default: var(--icon-secondary-default);
+  --color-icon-muted: var(--icon-muted);
+  --color-icon-disabled-default: var(--icon-disabled-default);
+  --color-icon-primary-default: var(--icon-primary-default);
+  --color-icon-destructive-default: var(--icon-destructive-default);
+  --color-icon-success-default: var(--icon-success-default);
+  --color-icon-warning-default: var(--icon-warning-default);
+
+  --color-white: var(--white);
+  --color-black: var(--black);
+}

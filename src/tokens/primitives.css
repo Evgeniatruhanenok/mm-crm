@@ -1,0 +1,131 @@
+/*
+ * Слой 1 — Primitives (ds/foundation.md → коллекция Primitives в Figma)
+ * Имя = якорь: Figma `Zinc/500` → `--zinc-500`, `radius-sm` → `--radius-sm`.
+ * Значения — палитра Tailwind, на которой построен shadcn-kit.
+ */
+
+:root {
+  /* ── Zinc (основной нейтральный) ─────────────────────────── */
+  --zinc-50: #fafafa;
+  --zinc-100: #f4f4f5;
+  --zinc-200: #e4e4e7;
+  --zinc-300: #d4d4d8;
+  --zinc-400: #a1a1aa;
+  --zinc-500: #71717a;
+  --zinc-600: #52525b;
+  --zinc-700: #3f3f46;
+  --zinc-800: #27272a;
+  --zinc-900: #18181b;
+  --zinc-950: #09090b;
+
+  /* ── Neutral ─────────────────────────────────────────────── */
+  --neutral-400: #a3a3a3;
+
+  /* ── Функциональные ──────────────────────────────────────── */
+  --red-500: #ef4444;
+  --red-600: #dc2626;
+  --emerald-100: #d1fae5;
+  --emerald-600: #059669;
+  --emerald-700: #047857;
+  --yellow-100: #fef9c3;
+  --yellow-500: #eab308;
+  --yellow-600: #ca8a04;
+  --yellow-700: #a16207;
+
+  /* ── Акценты для стадий сделки (кастомные компоненты M&A) ── */
+  --blue-100: #dbeafe;
+  --blue-700: #1d4ed8;
+  --violet-100: #ede9fe;
+  --violet-700: #6d28d9;
+  /* Amber нет в списке Primitives foundation.md — значения из custom-components-code.js */
+  --amber-100: #fef3c7;
+  --amber-700: #b45309;
+
+  --white: #ffffff;
+  --black: #000000;
+
+  /* ── Primary (настраиваемый акцент kit, по умолчанию = Zinc) ─ */
+  /* ⚠ foundation.md: значения Primary не считаны — сверить в Figma */
+  --primary-50: #fafafa;
+  --primary-900: #18181b;
+
+  /* ── Charts ──────────────────────────────────────────────── */
+  --chart-1: #2a9d8f;
+  --chart-2: #e76e50;
+  --chart-3: #274555;
+  --chart-4: #e8c468;
+  --chart-5: #f4a361;
+
+  /* ── Spacing (GAP) ───────────────────────────────────────── */
+  --spacing-none: 0px;
+  --spacing-xxs: 2px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-xxl: 32px;
+  --spacing-3xl: 40px;
+  --spacing-4xl: 64px;
+
+  /* ── Padding ─────────────────────────────────────────────── */
+  --padding-none: 0px;
+  --padding-xxs: 8px;
+  --padding-xs: 12px;
+  --padding-sm: 16px;
+  --padding-md: 20px;
+  --padding-lg: 24px;
+  --padding-xl: 32px;
+  --padding-xxl: 40px;
+  --padding-3xl: 48px;
+  --padding-4xl: 64px;
+
+  /* ── Типографика (Text Styles в Figma, переменных нет) ───── */
+  --size-10: 10px;
+  --size-11: 11px;
+  --size-12: 12px;
+  --size-13: 13px;
+  --size-14: 14px;
+  --size-16: 16px;
+  --size-18: 18px;
+  --size-20: 20px;
+  --size-24: 24px;
+  --size-30: 30px;
+  --size-36: 36px;
+  --size-48: 48px;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0em;
+}
+
+/*
+ * Radius и Shadow — в namespace Tailwind: имена токенов совпадают
+ * с утилитами (`rounded-sm` = radius-sm = 4px, `shadow-md` = shadow-md).
+ * `static` — переменные выводятся в :root всегда, даже без использования.
+ */
+@theme static {
+  --radius-none: 0px;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-xxl: 24px;
+  --radius-full: 400px;
+
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.15);
+}

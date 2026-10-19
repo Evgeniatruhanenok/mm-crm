@@ -1,0 +1,30 @@
+/*
+ * Типографика — служебные классы на Text Styles.
+ * Как в Figma: TextStyle не несёт цвет. Цвет задаётся отдельной семантикой
+ * (`text-foreground-muted` и т.п.).
+ *
+ * ⚠ Text Styles не перечислены в ds/ (foundation.md: «типографика через Text Styles»).
+ *   Шкала заголовков — shadcn typography, на которой построен kit;
+ *   M&A-роли — размеры из кастомных компонентов (custom-components-code.js).
+ *   Сверить с Figma.
+ */
+
+/* ── shadcn typography ─────────────────────────────────────── */
+.ds-h1 { font-size: var(--size-48); line-height: var(--leading-none); font-weight: var(--weight-extrabold); letter-spacing: var(--tracking-tight); }
+.ds-h2 { font-size: var(--size-30); line-height: var(--leading-tight); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tight); }
+.ds-h3 { font-size: var(--size-24); line-height: var(--leading-tight); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tight); }
+.ds-h4 { font-size: var(--size-20); line-height: var(--leading-snug); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tight); }
+.ds-lead { font-size: var(--size-20); line-height: var(--leading-normal); font-weight: var(--weight-regular); }
+.ds-large { font-size: var(--size-18); line-height: var(--leading-normal); font-weight: var(--weight-semibold); }
+.ds-p { font-size: var(--size-16); line-height: var(--leading-relaxed); font-weight: var(--weight-regular); }
+.ds-body { font-size: var(--size-14); line-height: var(--leading-normal); font-weight: var(--weight-regular); }
+.ds-small { font-size: var(--size-14); line-height: var(--leading-none); font-weight: var(--weight-medium); }
+.ds-caption { font-size: var(--size-12); line-height: var(--leading-normal); font-weight: var(--weight-regular); }
+
+/* ── M&A-роли (кастомные компоненты) ───────────────────────── */
+.ds-metric-value { font-size: var(--size-18); line-height: var(--leading-tight); font-weight: var(--weight-bold); }
+.ds-title-sm { font-size: var(--size-13); line-height: var(--leading-tight); font-weight: var(--weight-medium); }
+.ds-label-sm { font-size: var(--size-12); line-height: var(--leading-tight); font-weight: var(--weight-medium); }
+.ds-meta { font-size: var(--size-11); line-height: var(--leading-tight); font-weight: var(--weight-regular); }
+.ds-label-xs { font-size: var(--size-11); line-height: var(--leading-tight); font-weight: var(--weight-medium); }
+.ds-label-2xs { font-size: var(--size-10); line-height: var(--leading-tight); font-weight: var(--weight-medium); }
