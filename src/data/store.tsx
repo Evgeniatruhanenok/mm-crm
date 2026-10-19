@@ -1,7 +1,7 @@
 import * as React from "react"
 import { CURRENT_USER, OLDER_BLOCKED, OLDER_RECORDS, seedActivities, seedAudit, seedDeals, seedEmployees, seedZones } from "./seed"
 import { delay, isoDate, isoDateTime, now, randomHash, slugify } from "./format"
-import { hasErrors, validateDeal, validateZone } from "./validation"
+import { canMoveToStage, hasErrors, validateDeal, validateZone } from "./validation"
 import type { Activity, AuditEntry, Deal, DealInput, Employee, Result, Stage, Zone } from "./types"
 
 /*
@@ -108,7 +108,8 @@ function useStoreValue() {
         const deal = dealById(id)
         if (!deal) return fail("Deal not found")
         if (deal.stage === stage) return ok(deal)
-        if (stage !== "Prospecting" && !deal.nda) return fail("Sign the NDA first — deals without an NDA stay in Prospecting")
+        const blocked = canMoveToStage(deal, stage)
+        if (blocked) return fail(blocked)
         touch(id, { stage })
         activity({ dealId: id, type: "Note", subject: `Stage changed: ${deal.stage} → ${stage}`, meta: CURRENT_USER.short })
         return ok({ ...deal, stage })

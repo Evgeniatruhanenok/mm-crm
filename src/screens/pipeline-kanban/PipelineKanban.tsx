@@ -9,7 +9,8 @@ import { KanbanCard } from "@/components/KanbanCard"
 import { KanbanColumn } from "@/components/KanbanColumn"
 import { STAGES, type Stage } from "@/components/tones"
 import { cn } from "@/lib/utils"
-import { fmtDate, pluralize, useStore } from "@/data"
+import { APPEAR, useNewItems, vtName, withViewTransition } from "@/lib/motion"
+import { canMoveToStage, fmtDate, pluralize, useStore } from "@/data"
 import { AppShell, PageToolbar } from "../_shared/AppShell"
 import { DealFormDialog } from "../_shared/DealFormDialog"
 import { EmptyState } from "../_shared/EmptyState"
@@ -24,14 +25,18 @@ export default function PipelineKanban() {
   const [dragId, setDragId] = React.useState<string | null>(null)
   const [overStage, setOverStage] = React.useState<Stage | null>(null)
   const closed = pf.filters.view === "closed"
+  const isNew = useNewItems(state.deals.map((d) => d.id), state.status === "ready")
 
   const drop = (stage: Stage, id: string | null) => {
     setOverStage(null)
     if (!id) return
-    const res = actions.moveDeal(id, stage)
     setDragId(null)
-    if (!res.ok) toast.error("Can’t move the deal", { description: res.error })
-    else toast.success(`${res.value.name} → ${stage}`)
+    const deal = state.deals.find((d) => d.id === id)
+    if (!deal || deal.stage === stage) return
+    const blocked = canMoveToStage(deal, stage)
+    if (blocked) return void toast.error("Can’t move the deal", { description: blocked })
+    withViewTransition(() => actions.moveDeal(id, stage))
+    toast.success(`${deal.name} → ${stage}`)
   }
 
   return (
@@ -64,7 +69,7 @@ export default function PipelineKanban() {
           <EmptyState icon={SearchXIcon} title="Nothing found" description="No deals match the current filters or search." action={<Button variant="outline" onClick={pf.reset}>Reset filters</Button>} />
         </div>
       ) : (
-        <div className="flex flex-1 items-stretch gap-(--spacing-lg) overflow-x-auto bg-background-default p-(--padding-lg)">
+        <div className="flex flex-1 items-stretch gap-(--spacing-lg) overflow-x-auto bg-background-default p-(--padding-lg) animate-in fade-in-0 duration-200">
           {STAGES.map((stage) => {
             const list = pf.deals.filter((d) => d.stage === stage)
             return (
@@ -90,7 +95,8 @@ export default function PipelineKanban() {
                     onDragStart={(e) => { setDragId(d.id); e.dataTransfer.setData("text/deal", d.id); e.dataTransfer.effectAllowed = "move" }}
                     onDragEnd={() => { setDragId(null); setOverStage(null) }}
                     onClick={() => navigate(`/deals/${d.id}`)}
-                    className={cn("w-full cursor-pointer transition-shadow hover:shadow-md", dragId === d.id && "opacity-50")}
+                    style={vtName("deal", d.id)}
+                    className={cn("w-full cursor-pointer transition-[box-shadow,transform,opacity] duration-150 ease-out hover:-translate-y-px hover:shadow-md active:translate-y-0", dragId === d.id && "scale-[0.98] opacity-50", isNew(d.id) && APPEAR)}
                     stage={d.stage} dealName={d.name} dealType={d.type} team={d.team} date={fmtDate(d.lastActivity)}
                   />
                 ))}

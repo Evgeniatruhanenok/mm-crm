@@ -13,6 +13,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { StageBadge } from "@/components/StageBadge"
 import { STAGES } from "@/components/tones"
 import { fmtDate, pluralize, useStore, type Deal } from "@/data"
+import { cn } from "@/lib/utils"
+import { APPEAR, useNewItems } from "@/lib/motion"
 import { AppShell, PageToolbar } from "../_shared/AppShell"
 import { DealFormDialog } from "../_shared/DealFormDialog"
 import { EmptyState } from "../_shared/EmptyState"
@@ -36,6 +38,7 @@ export default function PipelineTable() {
   const [formOpen, setFormOpen] = React.useState(false)
   const [paste, setPaste] = React.useState<string | null>(null)
   const [busy, setBusy] = React.useState(false)
+  const isNew = useNewItems(state.deals.map((d) => d.id), state.status === "ready")
 
   React.useEffect(() => { setPage(1); setSelected(new Set()) }, [pf.query])
 
@@ -120,7 +123,7 @@ export default function PipelineTable() {
                 action={!closed && <Button onClick={() => setFormOpen(true)}><PlusIcon /> New deal</Button>} />
         ) : (
           <>
-            <div className="overflow-x-auto rounded-md border border-border-default">
+            <div className="overflow-x-auto rounded-md border border-border-default animate-in fade-in-0 duration-200">
               <Table>
                 <TableHeader className="bg-background-muted">
                   <TableRow>
@@ -137,7 +140,7 @@ export default function PipelineTable() {
                 </TableHeader>
                 <TableBody>
                   {rows.map((d) => (
-                    <TableRow key={d.id} data-state={selected.has(d.id) ? "selected" : undefined} className="cursor-pointer" onClick={() => navigate(`/deals/${d.id}`)}>
+                    <TableRow key={d.id} data-state={selected.has(d.id) ? "selected" : undefined} className={cn("cursor-pointer", isNew(d.id) && APPEAR)} onClick={() => navigate(`/deals/${d.id}`)}>
                       <TableCell onClick={(e) => e.stopPropagation()}><Checkbox aria-label={`Select ${d.name}`} checked={selected.has(d.id)} onCheckedChange={() => toggle(d.id)} /></TableCell>
                       <TableCell>{d.name}</TableCell>
                       <TableCell>{d.type}</TableCell>

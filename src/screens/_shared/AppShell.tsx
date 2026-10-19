@@ -123,7 +123,9 @@ function AppShell({ children }: { active?: NavKey; children: ReactNode }) {
             <span className="ds-caption text-foreground-muted">{CURRENT_USER.short}</span>
           </SidebarFooter>
         </Sidebar>
-        <main className="flex min-w-0 flex-1 flex-col overflow-auto">{children}</main>
+        <main className="flex min-w-0 flex-1 flex-col overflow-auto">
+          <div key={pathname} className="flex min-h-full flex-1 flex-col animate-in fade-in-0 slide-in-from-bottom-1 duration-200 ease-out">{children}</div>
+        </main>
       </SidebarProvider>
     </div>
   )

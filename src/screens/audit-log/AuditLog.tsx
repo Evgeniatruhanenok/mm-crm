@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { StatsMetric } from "@/components/StatsMetric"
 import { auditStats, fmtDate, fmtShortDateTime, isoDate, now, useStore, type AuditEntry, type AuditKind } from "@/data"
 import { cn } from "@/lib/utils"
+import { APPEAR, useNewItems } from "@/lib/motion"
 import { AppShell, PageToolbar } from "../_shared/AppShell"
 import { EmptyState } from "../_shared/EmptyState"
 import { ActionCell, FileCell } from "./parts/LogCells"
@@ -36,6 +37,7 @@ export default function AuditLog() {
   const [deal, setDeal] = React.useState("all")
   const [page, setPage] = React.useState(1)
   const [busy, setBusy] = React.useState<"export" | "verify" | null>(null)
+  const isNew = useNewItems(state.audit.map((a) => a.id), state.status === "ready")
 
   React.useEffect(() => setPage(1), [range, user, kind, deal])
 
@@ -119,14 +121,14 @@ export default function AuditLog() {
           <EmptyState icon={SearchXIcon} title="No records match the filters" description="Change the period, user, type or deal." action={<Button variant="outline" onClick={reset}>Reset filters</Button>} />
         ) : (
           <>
-            <div className="overflow-x-auto rounded-md border border-border-default">
+            <div className="overflow-x-auto rounded-md border border-border-default animate-in fade-in-0 duration-200">
               <Table>
                 <TableHeader className="bg-background-muted">
                   <TableRow>{COLUMNS.map((c) => <TableHead key={c}>{c}</TableHead>)}</TableRow>
                 </TableHeader>
                 <TableBody>
                   {rows.map((r) => (
-                    <TableRow key={r.id} className={cn("animate-in fade-in-0 duration-300", r.tone && TONE[r.tone])}>
+                    <TableRow key={r.id} className={cn(isNew(r.id) && APPEAR, r.tone && TONE[r.tone])}>
                       <TableCell>{fmtShortDateTime(r.at)}</TableCell>
                       <TableCell>{r.user}</TableCell>
                       <TableCell><ActionCell entry={r} /></TableCell>

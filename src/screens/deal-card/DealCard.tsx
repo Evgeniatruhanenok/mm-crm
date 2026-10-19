@@ -156,7 +156,7 @@ export default function DealCard() {
           </TabsList>
         </div>
 
-        <TabsContent value="activity" className="flex flex-col px-(--padding-lg)">
+        <TabsContent value="activity" className="flex flex-col px-(--padding-lg) animate-in fade-in-0 duration-200">
           <div className="flex flex-wrap items-center gap-(--spacing-sm) py-(--padding-xs)">
             <Select value={type} onValueChange={setType}>
               <SelectTrigger className="w-45" aria-label="Activity type"><SelectValue /></SelectTrigger>
@@ -188,10 +188,10 @@ export default function DealCard() {
             </>
           )}
         </TabsContent>
-        <TabsContent value="documents" className="p-(--padding-lg)">
+        <TabsContent value="documents" className="p-(--padding-lg) animate-in fade-in-0 duration-200">
           <EmptyState icon={FileTextIcon} title="No documents yet" description="CIM, teaser and NDA files attached to this deal will appear here." />
         </TabsContent>
-        <TabsContent value="buyers" className="p-(--padding-lg)">
+        <TabsContent value="buyers" className="p-(--padding-lg) animate-in fade-in-0 duration-200">
           <EmptyState icon={UsersIcon} title="Buyer list is empty" description={deal.nda ? "Add potential buyers to start outreach." : "Available after the NDA is signed."} />
         </TabsContent>
       </Tabs>

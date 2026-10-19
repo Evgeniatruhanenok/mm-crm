@@ -32,4 +32,10 @@ export function validateZone(input: { title: string; dealIds: string[] }, zones:
   return e
 }
 
+/** Kanban stage-change rule (NDA hard-block): returns an error message or null. */
+export function canMoveToStage(deal: Deal, stage: Deal["stage"]): string | null {
+  if (stage !== "Prospecting" && !deal.nda) return "Sign the NDA first — deals without an NDA stay in Prospecting"
+  return null
+}
+
 export const hasErrors = (e: object) => Object.values(e).some(Boolean)

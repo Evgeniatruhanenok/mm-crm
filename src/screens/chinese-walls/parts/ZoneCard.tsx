@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { fmtDate, type Deal, type Employee, type Zone } from "@/data"
+import { useNewItems } from "@/lib/motion"
 import { MemberChip } from "./MemberChip"
 
 type Props = {
@@ -23,10 +24,11 @@ type Props = {
 /** Chinese Wall zone (Figma ZoneCard/*): header + deals + team chips; drop target for employees. Local block — candidate for the base. */
 export function ZoneCard({ zone, deals, members, onEdit, onToggleActive, onAddMember, onRemoveMember, onDropMember, busy }: Props) {
   const [over, setOver] = React.useState(false)
+  const isNew = useNewItems(zone.memberIds)
   return (
     <Card
       size="sm"
-      className={cn("gap-(--spacing-md) px-(--padding-md) transition-shadow", over && "ring-2 ring-border-primary-default", !zone.active && "bg-background-muted")}
+      className={cn("gap-(--spacing-md) px-(--padding-md) transition-[box-shadow,background-color] duration-200", over && "ring-2 ring-border-primary-default", !zone.active && "bg-background-muted")}
       onDragOver={(e) => { if (zone.active && e.dataTransfer.types.includes("text/employee")) { e.preventDefault(); setOver(true) } }}
       onDragLeave={() => setOver(false)}
       onDrop={(e) => { e.preventDefault(); setOver(false); const id = e.dataTransfer.getData("text/employee"); if (id) onDropMember(id) }}
@@ -47,7 +49,7 @@ export function ZoneCard({ zone, deals, members, onEdit, onToggleActive, onAddMe
       </div>
       <span className="ds-caption text-foreground-muted">Team</span>
       <div className="flex flex-wrap items-center gap-(--spacing-sm)">
-        {members.map((m) => <MemberChip key={m.id} initials={m.initials} name={m.name} role={m.role} onRemove={zone.active ? () => onRemoveMember(m.id) : undefined} />)}
+        {members.map((m) => <MemberChip key={m.id} initials={m.initials} name={m.name} role={m.role} onRemove={zone.active ? () => onRemoveMember(m.id) : undefined} className={isNew(m.id) ? "animate-in fade-in-0 zoom-in-95 duration-200 ease-out" : undefined} />)}
         {zone.active
           ? <Button variant="ghost" size="sm" onClick={onAddMember}><PlusIcon /> Add member</Button>
           : <span className="ds-caption text-foreground-muted">Members were released when the zone was deactivated</span>}
