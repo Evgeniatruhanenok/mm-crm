@@ -9,6 +9,7 @@
 !/index.html
 !/components.json
 !/vite.config.ts
+!/vercel.json
 !/vitest.shims.d.ts
 !/tsconfig.json
 !/tsconfig.app.json

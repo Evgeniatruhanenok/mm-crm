@@ -33,7 +33,7 @@ export default function ScreensIndex() {
 
       <footer className="ds-caption flex flex-wrap gap-(--spacing-lg) border-t border-border-default pt-(--padding-sm) text-foreground-muted">
         <span>Design system:</span>
-        <a className="underline underline-offset-4 hover:text-foreground-default" href={STORYBOOK_URL} target="_blank" rel="noreferrer">Storybook catalog</a>
+        {import.meta.env.DEV && <a className="underline underline-offset-4 hover:text-foreground-default" href={STORYBOOK_URL} target="_blank" rel="noreferrer">Storybook catalog</a>}
         <Link className="underline underline-offset-4 hover:text-foreground-default" to="/showcase">Showcase</Link>
       </footer>
     </main>
