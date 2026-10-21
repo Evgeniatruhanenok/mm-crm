@@ -80,10 +80,11 @@ function SendDialog({ doc, contacts, onClose, onBlocked }: { doc: DealDocument |
   const [busy, setBusy] = React.useState<string | null>(null)
   React.useEffect(() => {
     if (!doc) return
-    setContactId((contacts.find((c) => eligibility(doc, c) === "ok") ?? contacts[0])?.id ?? "")
+    setContactId(contacts.find((c) => eligibility(doc, c) === "ok")?.id ?? "")
   }, [doc]) // eslint-disable-line react-hooks/exhaustive-deps
   if (!doc) return null
-  const contact = contacts.find((c) => c.id === contactId)
+  // only recipients who can receive the file are selectable
+  const contact = contacts.find((c) => c.id === contactId && eligibility(doc, c) === "ok")
   const okCount = contacts.filter((c) => eligibility(doc, c) === "ok").length
 
   const send = async (e: React.FormEvent) => {
@@ -95,6 +96,14 @@ function SendDialog({ doc, contacts, onClose, onBlocked }: { doc: DealDocument |
     if (!res.ok) return onBlocked(doc, contact)
     toast.success(`${doc.name} sent to ${contact.name}`, { description: "Delivery recorded in the Audit Log" })
     onClose()
+  }
+  // a recipient who can't receive the file isn't selectable — clicking explains why (attempt is recorded, NDABlockModal)
+  const explainBlocked = async (c: Contact) => {
+    if (busy) return
+    setBusy(c.id)
+    await actions.sendDocument(doc.id, c.id)
+    setBusy(null)
+    onBlocked(doc, c)
   }
   const initiate = async (c: Contact) => {
     setBusy(c.id)
@@ -128,28 +137,27 @@ function SendDialog({ doc, contacts, onClose, onBlocked }: { doc: DealDocument |
             <RadioGroup value={contactId} onValueChange={setContactId} className="gap-(--spacing-sm)" aria-label="Recipient">
               {contacts.map((c) => {
                 const el = eligibility(doc, c)
+                const disabled = el !== "ok"
                 return (
-                  <label key={c.id} htmlFor={`rcpt-${c.id}`}
-                    className={cn("flex cursor-pointer items-center gap-(--spacing-md) rounded-md border px-(--padding-sm) py-(--padding-xs) transition-colors",
-                      contactId === c.id ? "border-border-primary-default bg-background-muted" : "border-border-default hover:bg-background-muted")}>
-                    <RadioGroupItem id={`rcpt-${c.id}`} value={c.id} />
+                  <label key={c.id} htmlFor={`rcpt-${c.id}`} data-disabled={disabled || undefined} onClick={disabled ? () => explainBlocked(c) : undefined}
+                    className={cn("flex items-center gap-(--spacing-md) rounded-md border px-(--padding-sm) py-(--padding-xs) transition-colors",
+                      disabled ? "cursor-help border-border-default" : contactId === c.id ? "cursor-pointer border-border-primary-default bg-background-muted" : "cursor-pointer border-border-default hover:bg-background-muted")}>
+                    <RadioGroupItem id={`rcpt-${c.id}`} value={c.id} disabled={disabled} />
                     <span className="flex min-w-0 flex-1 flex-col">
-                      <span className="ds-body text-foreground-default">{c.name}</span>
+                      <span className={cn("ds-body", disabled ? "text-foreground-muted" : "text-foreground-default")}>{c.name}</span>
                       <span className="ds-caption text-foreground-muted">{c.title}, {c.company}</span>
                     </span>
                     <Badge variant="secondary" className={STATUS[el].className}>{STATUS[el].label}</Badge>
-                    {el === "blocked" && <Button type="button" size="xs" variant="outline" loading={busy === c.id} onClick={(e) => { e.preventDefault(); initiate(c) }}>Initiate NDA</Button>}
-                    {el === "pending" && <Button type="button" size="xs" variant="outline" loading={busy === c.id} onClick={(e) => { e.preventDefault(); markSigned(c) }}>Mark as signed</Button>}
+                    {el === "blocked" && <Button type="button" size="xs" variant="outline" loading={busy === c.id} onClick={(e) => { e.preventDefault(); e.stopPropagation(); initiate(c) }}>Initiate NDA</Button>}
+                    {el === "pending" && <Button type="button" size="xs" variant="outline" loading={busy === c.id} onClick={(e) => { e.preventDefault(); e.stopPropagation(); markSigned(c) }}>Mark as signed</Button>}
                   </label>
                 )
               })}
             </RadioGroup>
           )}
 
-          {contact && eligibility(doc, contact) !== "ok" && (
-            <p className="ds-caption text-foreground-destructive-default">
-              Sending to {contact.name} will be blocked{eligibility(doc, contact) === "pending" ? " until the NDA is signed" : " — initiate an NDA first"}.
-            </p>
+          {contacts.length > 0 && okCount === 0 && (
+            <p className="ds-caption text-foreground-muted">No one can receive this file yet — initiate an NDA first.</p>
           )}
 
           <DialogFooter>

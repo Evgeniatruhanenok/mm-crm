@@ -16,6 +16,8 @@
 | Screen/AuditLog | `65:1411` | AuditLog.md | x=6344, y=100 |
 | Screen/NDABlockModal | `158:1472` | DealCard.md › NDABlockModal overlay; flow nda-hard-block | x=7944, y=100 |
 | Screen/AccessDenied | `159:1617` | sitemap AccessDenied; flow chinese-walls-setup | x=9544, y=100 |
+| Screen/DealCard-Documents | `167:1688` | DealCard.md › Documents tab | x=11144, y=100 |
+| Screen/SendDocument | `168:1984` | flow nda-hard-block (Send) | x=12744, y=100 |
 
 ---
 
@@ -65,6 +67,13 @@
 
 - **Screen/NDABlockModal** — Deal Card под оверлеем (`black` @ 50%) + **инстанс библиотечного Alert dialog** (опубликован 2026-10-21): Title «Sending blocked», Description про Highly Confidential CIM без NDA с получателем и запись в Audit Log, кнопки Cancel (secondary/Outline) / Initiate NDA (primary). Иконки у стандартного Alert dialog нет.
 - **Screen/AccessDenied** — оболочка приложения + центрированное состояние отказа: `shield-ban`, «Access denied», объяснение (сделка за Chinese Wall, пользователь не в Zone B), Badge «DENIED (C.Wall) · recorded in the Audit Log», владелец зоны, кнопки Back to Pipeline / Request access.
+
+## Добавлено 2026-10-21 (перенос из приложения)
+
+- **Screen/DealCard-Documents** — вкладка Documents: таблица из `.Table Item` (File / Level / Can be sent to / Uploaded by / Date / Actions), Level → `Badge` (Destructive/Warning light), «Can be sent to» = «N of M recipients» или «Anyone», действия → `Button` sm Ghost «Download» + Outline «Send».
+- **Screen/SendDocument** — Documents под оверлеем + **библиотечный Dialog** (Title «Send “CIM LogistikPro v2.pdf”», Description с уровнем и «1 of 2 can receive it now», кнопки Cancel / Send). Слот Swap → локальный компонент **SendDocument/RecipientList** (`168:1948`): строки получателей = `.Radio Item` (без подписи) + имя/должность + Badge статуса (Can receive — Success / NDA pending — Warning / Blocked · no NDA — Destructive) + `Button` sm Outline «Initiate NDA» (для pending — «Mark as signed»). Выбрать можно только тех, кто может получить файл: у остальных радио в State=Disabled и имя Foreground/muted. Выбранная строка — Border/primary + Background/muted.
+- **Screen/NDABlockModal** — фон переведён на вкладку Documents (как в приложении: модалка появляется после Send).
+- Kanban с замками (KanbanCard `locked`) — ждёт публикации библиотеки.
 
 ## Токены и компоненты
 

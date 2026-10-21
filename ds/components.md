@@ -303,7 +303,8 @@
 - **Назначение:** карточка сделки в Kanban-колонке; ширина 196px, высота авто
 - **Варианты:** stage: Prospecting | NDA Signed | Due Diligence | LOI / Term Sheet | Closing
 - **Свойства (TEXT):** `dealName`, `dealType`, `team`, `date`
-- **Слои:** dealName, meta (dealType · dot · team), date, stageBadge > label
+- **Свойства (BOOLEAN):** `locked` (default false) — сделка за Chinese Wall, в которую пользователь не входит: иконка `lock` перед названием (Icon/muted), название Foreground/muted. Код: `<KanbanCard locked />`, `data-locked`
+- **Слои:** titleRow > lockIcon, dealName; meta (dealType · dot · team), date, stageBadge > label
 - **Node ID:** `5018:1448`
 
 ### ActivityFeedItem
