@@ -124,6 +124,8 @@
   --radius-xl: 16px;
   --radius-xxl: 24px;
   --radius-full: 400px;
+  /* Figma: Radii/radius-input — text fields, selects */
+  --radius-input: 6px;
 
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);

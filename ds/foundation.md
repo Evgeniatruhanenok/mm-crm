@@ -165,6 +165,7 @@
 | radius-xl | 16px |
 | radius-xxl | 24px |
 | radius-full | 400px (pill) |
+| radius-input | 6px — поля ввода, селекты (Figma: `Radii/radius-input`; дозаписано 2026-10-21) |
 
 ---
 
