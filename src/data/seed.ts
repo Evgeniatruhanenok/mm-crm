@@ -1,4 +1,4 @@
-import type { Activity, AuditEntry, Deal, Employee, Zone } from "./types"
+import type { Activity, AuditEntry, Contact, Deal, DealDocument, Employee, Zone } from "./types"
 
 /* Mock dataset — mirrors the content of the Figma screens. No backend. */
 
@@ -62,6 +62,22 @@ export const seedAudit: AuditEntry[] = [
   { id: "l7", at: "2026-06-12T15:22:00", user: "Maria Volkova (VP)", action: "File view", kind: "view", file: "NDA Signed LogistikPro.pdf", deal: "LogistikPro sale", ip: "95.142.10.31", hash: "8ea3b…d20" },
   { id: "l8", at: "2026-06-12T14:48:00", user: "A. Smirnov (MD)", action: "C.Wall Zone C created", kind: "system", file: "— system", deal: "DigitalTrade acquisition", ip: "95.142.10.10", hash: "3bc9a…f77" },
   { id: "l9", at: "2026-06-05T09:12:00", user: "Dm. Kuznetsov", action: "BLOCKED", kind: "blocked", file: "CIM LogistikPro v2.pdf", level: "highly", deal: "LogistikPro sale", ip: "95.142.10.44", hash: "c5d2e…b19", tone: "warning" },
+]
+
+export const seedDocuments: DealDocument[] = [
+  { id: "doc-cim-lp", dealId: "logistikpro", name: "CIM LogistikPro v2.pdf", level: "highly", uploadedBy: "Maria Volkova", uploaded: "2026-06-02" },
+  { id: "doc-fm-lp", dealId: "logistikpro", name: "Financial Model Q1 2026.xlsx", level: "confidential", uploadedBy: "Dmitry Kuznetsov", uploaded: "2026-05-25" },
+  { id: "doc-nda-lp", dealId: "logistikpro", name: "NDA Signed LogistikPro.pdf", uploadedBy: "Legal", uploaded: "2026-05-28" },
+  { id: "doc-prosp-tp", dealId: "technopark", name: "IPO Prospectus Draft v3.pdf", level: "highly", uploadedBy: "Igor Belyaev", uploaded: "2026-05-28" },
+  { id: "doc-mgmt-tp", dealId: "technopark", name: "Mgmt Presentation v1.pptx", level: "confidential", uploadedBy: "Anna Sokolova", uploaded: "2026-06-13" },
+  { id: "doc-teaser-rm", dealId: "rosmedia", name: "RosMedia Teaser.pdf", level: "confidential", uploadedBy: "Maria Volkova", uploaded: "2026-06-12" },
+]
+
+export const seedContacts: Contact[] = [
+  { id: "c-petrov", dealId: "logistikpro", name: "Ivan Petrov", title: "CFO", company: "LogistikPro", nda: "none" },
+  { id: "c-lp-legal", dealId: "logistikpro", name: "Olga Lebedeva", title: "General Counsel", company: "LogistikPro", nda: "signed" },
+  { id: "c-tp-cfo", dealId: "technopark", name: "Pavel Orlov", title: "CFO", company: "TechnoPark", nda: "signed" },
+  { id: "c-rm-ceo", dealId: "rosmedia", name: "Dmitry Sokolov", title: "CEO", company: "RosMedia", nda: "none" },
 ]
 
 /** Records older than the visible seed (the log is 1,247 records long in the mockup). */

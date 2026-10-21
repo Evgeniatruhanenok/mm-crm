@@ -24,7 +24,7 @@ function NotFound() {
 const router = createBrowserRouter([
   { path: '/', element: <ScreensIndex /> },
   { path: '/showcase', element: <Showcase /> },
-  ...screens.map(({ route, path, component: Screen }) => ({ path: path ?? route, element: <Screen /> })),
+  ...screens.filter((s) => !s.alias).map(({ route, path, component: Screen }) => ({ path: path ?? route, element: <Screen /> })),
   { path: '*', element: <NotFound /> },
 ])
 

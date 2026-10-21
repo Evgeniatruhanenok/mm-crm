@@ -1,7 +1,7 @@
 import * as React from "react"
-import { Link, useNavigate, useParams } from "react-router"
+import { Link, useNavigate, useParams, useSearchParams } from "react-router"
 import { toast } from "sonner"
-import { ArchiveRestoreIcon, FileTextIcon, FileXIcon, FilterXIcon, ShieldAlertIcon, UsersIcon } from "lucide-react"
+import { ArchiveRestoreIcon, FileXIcon, FilterXIcon, ShieldAlertIcon, UsersIcon } from "lucide-react"
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
@@ -13,11 +13,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ActivityFeedItem } from "@/components/ActivityFeedItem"
 import { StageBadge } from "@/components/StageBadge"
 import { ACTIVITY_TYPES } from "@/components/tones"
-import { delay, fmtDate, fmtDateTime, now, useStore } from "@/data"
+import { canAccessDeal, delay, fmtDate, fmtDateTime, now, useStore } from "@/data"
 import { AppShell } from "../_shared/AppShell"
 import { DealFormDialog } from "../_shared/DealFormDialog"
 import { EmptyState } from "../_shared/EmptyState"
 import { NdaBlockDialog } from "../_shared/NdaBlockDialog"
+import { AccessDenied } from "./parts/AccessDenied"
+import { DocumentsTab } from "./parts/DocumentsTab"
 import { MetaItem } from "./parts/MetaItem"
 import { OutlookSync } from "./parts/OutlookSync"
 
@@ -29,6 +31,7 @@ export default function DealCard() {
   const { dealId = "" } = useParams()
   const navigate = useNavigate()
   const { state, actions } = useStore()
+  const [params] = useSearchParams()
   const deal = state.deals.find((d) => d.id === dealId)
 
   const [editOpen, setEditOpen] = React.useState(false)
@@ -61,6 +64,8 @@ export default function DealCard() {
         </div>
       </AppShell>
     )
+
+  if (!canAccessDeal(state, deal.id)) return <AppShell><AccessDenied deal={deal} /></AppShell>
 
   const share = async () => {
     setBusy("share")
@@ -147,7 +152,7 @@ export default function DealCard() {
         </div>
       )}
 
-      <Tabs defaultValue="activity" className="flex-1 gap-0">
+      <Tabs defaultValue={params.get("tab") ?? "activity"} className="flex-1 gap-0">
         <div className="mt-(--spacing-sm) border-y border-border-default bg-background-muted px-(--padding-lg) py-(--padding-xxs)">
           <TabsList>
             <TabsTrigger value="activity">Activity</TabsTrigger>
@@ -189,7 +194,7 @@ export default function DealCard() {
           )}
         </TabsContent>
         <TabsContent value="documents" className="p-(--padding-lg) animate-in fade-in-0 duration-200">
-          <EmptyState icon={FileTextIcon} title="No documents yet" description="CIM, teaser and NDA files attached to this deal will appear here." />
+          <DocumentsTab dealId={deal.id} />
         </TabsContent>
         <TabsContent value="buyers" className="p-(--padding-lg) animate-in fade-in-0 duration-200">
           <EmptyState icon={UsersIcon} title="Buyer list is empty" description={deal.nda ? "Add potential buyers to start outreach." : "Available after the NDA is signed."} />

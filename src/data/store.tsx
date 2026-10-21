@@ -1,8 +1,8 @@
 import * as React from "react"
-import { CURRENT_USER, OLDER_BLOCKED, OLDER_RECORDS, seedActivities, seedAudit, seedDeals, seedEmployees, seedZones } from "./seed"
+import { CURRENT_USER, OLDER_BLOCKED, OLDER_RECORDS, seedActivities, seedAudit, seedContacts, seedDeals, seedDocuments, seedEmployees, seedZones } from "./seed"
 import { delay, isoDate, isoDateTime, now, randomHash, slugify } from "./format"
 import { canMoveToStage, hasErrors, validateDeal, validateZone } from "./validation"
-import type { Activity, AuditEntry, Deal, DealInput, Employee, Result, Stage, Zone } from "./types"
+import type { Activity, AuditEntry, Contact, Deal, DealDocument, DealInput, Employee, Result, Stage, Zone } from "./types"
 
 /*
  * Single mock data layer for every screen. In-memory only — no backend.
@@ -18,6 +18,12 @@ type State = {
   audit: AuditEntry[]
   syncAttempts: number
   lastZoneChange: { by: string; at: string }
+  documents: DealDocument[]
+  contacts: Contact[]
+  /** "View as" another employee (null = Alexey Smirnov, MD: full access, manages the walls) */
+  viewAs: string | null
+  /** access requests sent by the acting user: "<employeeId>:<dealId>" */
+  accessRequests: string[]
 }
 
 const STORAGE_KEY = "mmcrm-mock-v1"
@@ -30,6 +36,10 @@ const seedState: State = {
   audit: seedAudit,
   syncAttempts: 0,
   lastZoneChange: { by: CURRENT_USER.short, at: "2026-06-01" },
+  documents: seedDocuments,
+  contacts: seedContacts,
+  viewAs: null,
+  accessRequests: [],
 }
 
 /** Mock persistence: survives a page refresh; "Reset demo data" clears it. */
@@ -64,9 +74,18 @@ function useStoreValue() {
   }, [state])
 
   const actions = React.useMemo(() => {
-    const userLabel = `${CURRENT_USER.short} (${CURRENT_USER.role})`
-    const audit = (e: Omit<AuditEntry, "id" | "at" | "user" | "ip" | "hash">) =>
-      set((s) => ({ audit: [{ id: uid("log"), at: isoDateTime(now()), user: userLabel, ip: CURRENT_USER.ip, hash: randomHash(), ...e }, ...s.audit] }))
+    /** audit records are written on behalf of the acting user ("View as") */
+    const actor = () => {
+      const s = ref.current
+      const i = s.viewAs ? s.employees.findIndex((e) => e.id === s.viewAs) : -1
+      return i < 0
+        ? { label: `${CURRENT_USER.short} (${CURRENT_USER.role})`, ip: CURRENT_USER.ip }
+        : { label: `${s.employees[i].name} (${s.employees[i].role})`, ip: `95.142.10.${20 + i}` }
+    }
+    const audit = (e: Omit<AuditEntry, "id" | "at" | "user" | "ip" | "hash">) => {
+      const a = actor()
+      set((s) => ({ audit: [{ id: uid("log"), at: isoDateTime(now()), user: a.label, ip: a.ip, hash: randomHash(), ...e }, ...s.audit] }))
+    }
     const activity = (a: Omit<Activity, "id" | "at">) =>
       set((s) => ({ activities: [{ id: uid("act"), at: isoDateTime(now()), ...a }, ...s.activities] }))
     const touch = (id: string, patch: Partial<Deal> = {}) =>
@@ -226,6 +245,57 @@ function useStoreValue() {
         return ok(undefined)
       },
 
+      /* ── Documents & per-recipient NDA (NDABlockModal) ─────── */
+      /** Send a file to a counterparty. Confidential file + recipient without a signed NDA → blocked + audit. */
+      async sendDocument(docId: string, contactId: string): Promise<Result<"sent"> | { ok: false; error: "nda" }> {
+        const doc = ref.current.documents.find((d) => d.id === docId)!
+        const contact = ref.current.contacts.find((c) => c.id === contactId)!
+        const deal = dealById(doc.dealId)!
+        await delay(LATENCY)
+        if (doc.level && contact.nda !== "signed") {
+          audit({ action: "BLOCKED", kind: "blocked", file: doc.name, level: doc.level, deal: deal.name, tone: "destructive" })
+          return { ok: false, error: "nda" }
+        }
+        audit({ action: `File sent to ${contact.name}`, kind: "share", file: doc.name, level: doc.level, deal: deal.name })
+        activity({ dealId: deal.id, type: "Email Out", subject: `${doc.name} sent to ${contact.name}`, meta: `${actor().label} → ${contact.name} (${contact.title})` })
+        touch(deal.id)
+        return ok("sent")
+      },
+      downloadDocument(docId: string) {
+        const doc = ref.current.documents.find((d) => d.id === docId)!
+        audit({ action: "Download", kind: "download", file: doc.name, level: doc.level, deal: dealById(doc.dealId)!.name })
+      },
+      /** "Initiate NDA" from the block modal: the NDA goes to the recipient for signature. */
+      async requestContactNda(contactId: string): Promise<Result> {
+        const c = ref.current.contacts.find((x) => x.id === contactId)!
+        await delay(LATENCY)
+        set((s) => ({ contacts: s.contacts.map((x) => (x.id === contactId ? { ...x, nda: "pending" as const } : x)) }))
+        activity({ dealId: c.dealId, type: "Email Out", subject: `NDA sent for signature — ${c.name}`, meta: `${actor().label} → ${c.name} (${c.title}, ${c.company})` })
+        return ok(undefined)
+      },
+      /** Counterparty signed (mock of the signature coming back). */
+      async markContactNdaSigned(contactId: string): Promise<Result> {
+        const c = ref.current.contacts.find((x) => x.id === contactId)!
+        await delay(LATENCY)
+        set((s) => ({ contacts: s.contacts.map((x) => (x.id === contactId ? { ...x, nda: "signed" as const } : x)) }))
+        activity({ dealId: c.dealId, type: "NDA", subject: `NDA signed — ${c.name} (${c.company})`, meta: `Legal → ${dealById(c.dealId)!.owner}` })
+        return ok(undefined)
+      },
+
+      /* ── Chinese Wall access ("View as") ───────────────────── */
+      setViewAs(empId: string | null) { set({ viewAs: empId }) },
+      /** Called once when a walled deal is opened by a non-member → DENIED in the Audit Log. */
+      logDeniedAccess(dealId: string) {
+        audit({ action: "DENIED (C.Wall)", kind: "denied", file: "Deal workspace", deal: dealById(dealId)?.name ?? "—", tone: "destructive" })
+      },
+      async requestAccess(dealId: string): Promise<Result<string>> {
+        await delay(LATENCY)
+        const key = `${ref.current.viewAs}:${dealId}`
+        set((s) => ({ accessRequests: [...s.accessRequests, key] }))
+        audit({ action: "Access requested (C.Wall)", kind: "system", file: "Deal workspace", deal: dealById(dealId)?.name ?? "—" })
+        return ok(zoneOwner(ref.current, dealId)?.name ?? "the zone owner")
+      },
+
       /* ── Audit log ─────────────────────────────────────────── */
       async exportAudit(count: number): Promise<Result<number>> {
         await delay(LATENCY * 2)
@@ -267,3 +337,20 @@ export const auditStats = (s: State) => {
   }
 }
 export const activeDeals = (s: State) => s.deals.filter((d) => !d.archived)
+
+/** Acting employee in "View as" mode (null = Alexey Smirnov with full access). */
+export const actingEmployee = (s: State) => (s.viewAs ? s.employees.find((e) => e.id === s.viewAs) ?? null : null)
+/** Active zones that wall off this deal. */
+export const zonesOfDeal = (s: State, dealId: string) => s.zones.filter((z) => z.active && z.dealIds.includes(dealId))
+/** Chinese Wall rule: a walled deal is visible only to members of its zone (Alexey, MD, manages the walls and sees all). */
+export const canAccessDeal = (s: State, dealId: string) => {
+  if (!s.viewAs) return true
+  const zones = zonesOfDeal(s, dealId)
+  return zones.length === 0 || zones.some((z) => z.memberIds.includes(s.viewAs!))
+}
+const RANK = { Partner: 0, MD: 1, VP: 2, Associate: 3, Analyst: 4 } as const
+/** Most senior member of the first zone that walls the deal. */
+export const zoneOwner = (s: State, dealId: string) => {
+  const z = zonesOfDeal(s, dealId)[0]
+  return z ? s.employees.filter((e) => z.memberIds.includes(e.id)).sort((a, b) => RANK[a.role] - RANK[b.role])[0] : undefined
+}

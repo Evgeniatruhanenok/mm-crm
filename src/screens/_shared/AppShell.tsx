@@ -2,9 +2,9 @@ import * as React from "react"
 import type { ReactNode } from "react"
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router"
 import { toast } from "sonner"
-import { ChevronDownIcon, ChevronRightIcon, DatabaseBackupIcon, LayoutGridIcon, LogOutIcon, SearchIcon } from "lucide-react"
+import { ChevronDownIcon, ChevronRightIcon, DatabaseBackupIcon, EyeIcon, LayoutGridIcon, LogOutIcon, SearchIcon } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -19,7 +19,7 @@ import {
   SidebarMenuSubItem,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import { CURRENT_USER, useStore } from "@/data"
+import { CURRENT_USER, actingEmployee, useStore } from "@/data"
 
 /*
  * Shared app frame of all screens: Header (64) + Sidebar (240) + Main.
@@ -34,7 +34,16 @@ function AppShell({ children }: { active?: NavKey; children: ReactNode }) {
   const { pathname } = useLocation()
   const [params] = useSearchParams()
   const navigate = useNavigate()
-  const { actions } = useStore()
+  const { state, actions } = useStore()
+  const me = actingEmployee(state)
+  // deep link for demos: ?as=<employeeId> switches "View as", ?as=me returns to Alexey
+  const asParam = params.get("as")
+  React.useEffect(() => {
+    if (asParam === null) return
+    const target = asParam === "me" ? null : state.employees.some((e) => e.id === asParam) ? asParam : null
+    if (target !== state.viewAs) actions.setViewAs(target)
+  }, [asParam]) // eslint-disable-line react-hooks/exhaustive-deps
+  const zoneOfMe = me && state.zones.find((z) => z.active && z.memberIds.includes(me.id))
   const view = params.get("view") ?? "all"
   const inPipeline = pathname.startsWith("/pipeline") || pathname.startsWith("/deals")
   const inCompliance = pathname.startsWith("/compliance")
@@ -69,13 +78,25 @@ function AppShell({ children }: { active?: NavKey; children: ReactNode }) {
         </form>
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-(--spacing-sm) rounded-sm px-(--spacing-xs) py-(--spacing-xxs) transition-colors outline-none hover:bg-background-muted focus-visible:ring-3 focus-visible:ring-ring/50">
-            <Avatar size="sm"><AvatarFallback>{CURRENT_USER.initials}</AvatarFallback></Avatar>
-            <span className="ds-body text-foreground-default">{CURRENT_USER.name}</span>
+            <Avatar size="sm"><AvatarFallback>{me?.initials ?? CURRENT_USER.initials}</AvatarFallback></Avatar>
+            <span className="ds-body text-foreground-default">{me?.name ?? CURRENT_USER.name}</span>
             <ChevronDownIcon className="size-3 text-icon-muted" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>{CURRENT_USER.name} · {CURRENT_USER.role}</DropdownMenuLabel>
+            <DropdownMenuLabel>{me ? `${me.name} · ${me.role}` : `${CURRENT_USER.name} · ${CURRENT_USER.role}`}</DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger><EyeIcon /> View as</DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                <DropdownMenuRadioGroup value={state.viewAs ?? "me"} onValueChange={(v) => actions.setViewAs(v === "me" ? null : v)}>
+                  <DropdownMenuRadioItem value="me">{CURRENT_USER.name} · MD (all deals)</DropdownMenuRadioItem>
+                  {state.employees.filter((e) => e.id !== "smirnov").map((e) => {
+                    const z = state.zones.find((x) => x.active && x.memberIds.includes(e.id))
+                    return <DropdownMenuRadioItem key={e.id} value={e.id}>{e.name} · {e.role}{z ? ` · Zone ${z.letter}` : " · no zone"}</DropdownMenuRadioItem>
+                  })}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
             <DropdownMenuItem onSelect={() => navigate("/")}><LayoutGridIcon /> All screens</DropdownMenuItem>
             <DropdownMenuItem onSelect={() => { actions.resetDemoData(); toast.success("Demo data reset", { description: "All changes were discarded" }) }}><DatabaseBackupIcon /> Reset demo data</DropdownMenuItem>
             <DropdownMenuItem onSelect={() => toast.info("Mock session — sign-in is not part of this prototype")}><LogOutIcon /> Sign out</DropdownMenuItem>
@@ -83,6 +104,13 @@ function AppShell({ children }: { active?: NavKey; children: ReactNode }) {
         </DropdownMenu>
       </header>
 
+      {me && (
+        <div className="ds-caption flex items-center justify-center gap-(--spacing-sm) border-b border-border-warning-default bg-background-warning-light px-(--padding-lg) py-(--padding-xxs) text-foreground-warning-default">
+          <EyeIcon className="size-3.5" />
+          Viewing as {me.name} ({me.role}){zoneOfMe ? ` · member of Zone ${zoneOfMe.letter}` : " · not in any zone"} — Chinese Wall rules apply
+          <button type="button" className="font-medium underline underline-offset-4" onClick={() => actions.setViewAs(null)}>Back to {CURRENT_USER.name}</button>
+        </div>
+      )}
       <SidebarProvider className="min-h-0 flex-1">
         <Sidebar collapsible="none" className="w-60 border-r border-border-default">
           <SidebarContent className="gap-(--spacing-xxs) p-(--padding-sm)">
@@ -119,8 +147,8 @@ function AppShell({ children }: { active?: NavKey; children: ReactNode }) {
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter className="flex-row items-center gap-(--spacing-sm) p-(--padding-sm)">
-            <Avatar size="sm"><AvatarFallback>{CURRENT_USER.initials}</AvatarFallback></Avatar>
-            <span className="ds-caption text-foreground-muted">{CURRENT_USER.short}</span>
+            <Avatar size="sm"><AvatarFallback>{me?.initials ?? CURRENT_USER.initials}</AvatarFallback></Avatar>
+            <span className="ds-caption text-foreground-muted">{me?.name ?? CURRENT_USER.short}</span>
           </SidebarFooter>
         </Sidebar>
         <main className="flex min-w-0 flex-1 flex-col overflow-auto">

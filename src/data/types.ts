@@ -74,6 +74,26 @@ export type AuditEntry = {
   tone?: "destructive" | "warning"
 }
 
+export type DealDocument = {
+  id: string
+  dealId: string
+  name: string
+  level?: ConfidentialityLevel
+  uploadedBy: string
+  /** ISO date */
+  uploaded: string
+}
+
+/** External counterparty contact on a deal; NDA is per recipient. */
+export type Contact = {
+  id: string
+  dealId: string
+  name: string
+  title: string
+  company: string
+  nda: "signed" | "pending" | "none"
+}
+
 export type DealInput = Pick<Deal, "name" | "type" | "stage" | "team" | "owner" | "nda">
 
 export type Result<T = void> = { ok: true; value: T } | { ok: false; error: string }
