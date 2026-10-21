@@ -10,7 +10,7 @@ import { KanbanColumn } from "@/components/KanbanColumn"
 import { STAGES, type Stage } from "@/components/tones"
 import { cn } from "@/lib/utils"
 import { APPEAR, useNewItems, vtName, withViewTransition } from "@/lib/motion"
-import { canMoveToStage, fmtDate, pluralize, useStore } from "@/data"
+import { canAccessDeal, canMoveToStage, fmtDate, pluralize, useStore } from "@/data"
 import { AppShell, PageToolbar } from "../_shared/AppShell"
 import { DealFormDialog } from "../_shared/DealFormDialog"
 import { EmptyState } from "../_shared/EmptyState"
@@ -98,6 +98,7 @@ export default function PipelineKanban() {
                     style={vtName("deal", d.id)}
                     className={cn("w-full cursor-pointer transition-[box-shadow,transform,opacity] duration-150 ease-out hover:-translate-y-px hover:shadow-md active:translate-y-0", dragId === d.id && "scale-[0.98] opacity-50", isNew(d.id) && APPEAR)}
                     stage={d.stage} dealName={d.name} dealType={d.type} team={d.team} date={fmtDate(d.lastActivity)}
+                    locked={!canAccessDeal(state, d.id)}
                   />
                 ))}
               </KanbanColumn>

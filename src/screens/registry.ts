@@ -23,7 +23,7 @@ export const screens: ScreenEntry[] = [
   { id: "pipeline-kanban", name: "Pipeline — Kanban", description: "Deal board: 5 stage columns with deal cards, filters and New deal", route: "/pipeline", component: PipelineKanban },
   { id: "pipeline-table", name: "Pipeline — Table", description: "Deals table with stages and NDA status, Smart Paste hint, pagination", route: "/pipeline/table", component: PipelineTable },
   { id: "deal-card", name: "Deal Card", description: "Deal header, meta and actions, tabs and Outlook activity feed", route: "/deals/logistikpro", path: "/deals/:dealId", component: DealCard },
-  { id: "nda-block-modal", name: "NDA Block Modal", description: "Documents → Send the CIM to Ivan Petrov (no NDA) → “Sending blocked”, Initiate NDA", route: "/deals/logistikpro?tab=documents", alias: true, component: DealCard },
+  { id: "nda-block-modal", name: "NDA Block Modal", description: "Documents → Send the CIM → pick Ivan Petrov (Blocked · no NDA) → “Sending blocked”, Initiate NDA", route: "/deals/logistikpro?tab=documents", alias: true, component: DealCard },
   { id: "access-denied", name: "Access Denied", description: "Viewing as Maria Volkova (Zone A) and opening a Zone B deal → Chinese Wall denial", route: "/deals/technopark?as=volkova", alias: true, component: DealCard },
   { id: "chinese-walls", name: "Chinese Walls", description: "Isolation zones with deals and teams, employees panel", route: "/compliance/chinese-walls", component: ChineseWalls },
   { id: "audit-log", name: "Audit Log", description: "Immutable access log: stats, filters, blocked actions highlighted", route: "/compliance/audit-log", component: AuditLog },

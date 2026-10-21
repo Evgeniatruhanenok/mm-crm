@@ -22,6 +22,7 @@ const meta = {
   argTypes: {
     stage: { control: 'select', options: STAGES, description: 'Deal stage — drives the badge' },
     dealName: { control: 'text', description: 'Deal name' },
+    locked: { control: 'boolean', description: 'Behind a Chinese Wall the viewer is not in — lock icon, muted name' },
     dealType: { control: 'text', description: 'Deal type (Sell-side, Buy-side, IPO…)' },
     team: { control: 'text', description: 'Team initials' },
     date: { control: 'text', description: 'Last update / key date' },
@@ -36,6 +37,9 @@ export const NdaSigned: Story = { args: { stage: 'NDA Signed', ...DEALS['NDA Sig
 export const DueDiligence: Story = {}
 export const LoiTermSheet: Story = { args: { stage: 'LOI / Term Sheet', ...DEALS['LOI / Term Sheet'] } }
 export const Closing: Story = { args: { stage: 'Closing', ...DEALS.Closing } }
+
+/** Viewer is outside the deal's Chinese Wall zone — opening it leads to Access denied. */
+export const Locked: Story = { args: { locked: true, stage: 'Due Diligence', dealName: 'TechnoPark IPO prep' } }
 
 /** All stages side by side. */
 export const AllVariants: Story = {

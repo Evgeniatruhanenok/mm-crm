@@ -1,7 +1,7 @@
 import * as React from "react"
 import { Link, useNavigate } from "react-router"
 import { toast } from "sonner"
-import { ArchiveIcon, ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon, CheckIcon, ClipboardPasteIcon, InboxIcon, PlusIcon, RotateCcwIcon, SearchXIcon } from "lucide-react"
+import { LockIcon, ArchiveIcon, ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon, CheckIcon, ClipboardPasteIcon, InboxIcon, PlusIcon, RotateCcwIcon, SearchXIcon } from "lucide-react"
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, Table
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { StageBadge } from "@/components/StageBadge"
 import { STAGES } from "@/components/tones"
-import { fmtDate, pluralize, useStore, type Deal } from "@/data"
+import { canAccessDeal, fmtDate, pluralize, useStore, type Deal } from "@/data"
 import { cn } from "@/lib/utils"
 import { APPEAR, useNewItems } from "@/lib/motion"
 import { AppShell, PageToolbar } from "../_shared/AppShell"
@@ -142,7 +142,11 @@ export default function PipelineTable() {
                   {rows.map((d) => (
                     <TableRow key={d.id} data-state={selected.has(d.id) ? "selected" : undefined} className={cn("cursor-pointer", isNew(d.id) && APPEAR)} onClick={() => navigate(`/deals/${d.id}`)}>
                       <TableCell onClick={(e) => e.stopPropagation()}><Checkbox aria-label={`Select ${d.name}`} checked={selected.has(d.id)} onCheckedChange={() => toggle(d.id)} /></TableCell>
-                      <TableCell>{d.name}</TableCell>
+                      <TableCell>
+                        {canAccessDeal(state, d.id)
+                          ? d.name
+                          : <span className="inline-flex items-center gap-(--spacing-xs) text-foreground-muted" title="Restricted by a Chinese Wall"><LockIcon className="size-3.5 text-icon-muted" aria-label="Restricted" />{d.name}</span>}
+                      </TableCell>
                       <TableCell>{d.type}</TableCell>
                       <TableCell><StageBadge stage={d.stage} /></TableCell>
                       <TableCell>{d.team}</TableCell>
